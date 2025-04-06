@@ -6,7 +6,7 @@
         <key>CFBundleName</key>
         <string>{{.Info.ProductName}}</string>
         <key>CFBundleExecutable</key>
-        <string>{{.Name}}</string>
+        <string>{{.OutputFilename}}</string>
         <key>CFBundleIdentifier</key>
         <string>com.wails.{{.Name}}</string>
         <key>CFBundleVersion</key>
@@ -24,12 +24,6 @@
         <key>NSHumanReadableCopyright</key>
         <string>{{.Info.Copyright}}</string>
         {{if .Info.FileAssociations}}
-        <key>NSAppleScriptEnabled</key>
-        <true/>
-        <key>CFBundleExecutable</key>
-        <string>GitCMS</string>
-        <key>NSPreInstallScript</key>
-        <string>sh -c "$(dirname "$0")/install_deps.sh"</string>
         <key>CFBundleDocumentTypes</key>
         <array>
           {{range .Info.FileAssociations}}

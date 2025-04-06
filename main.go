@@ -2,13 +2,22 @@ package main
 
 import (
 	"embed"
+	"github.com/joho/godotenv"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
+	"log"
 )
 
 //go:embed all:frontend/dist
 var assets embed.FS
+
+func init() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("No .env file found, Relying on system environment.")
+	}
+}
 
 func main() {
 	// Create an instance of the app structure

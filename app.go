@@ -1,6 +1,7 @@
 package main
 
 import (
+	"GitCMS/internal/auth"
 	"context"
 	"fmt"
 )
@@ -24,4 +25,25 @@ func (a *App) startup(ctx context.Context) {
 // Greet returns a greeting for the given name
 func (a *App) Greet(name string) string {
 	return fmt.Sprintf("Hello %s, It's show time!", name)
+}
+
+func (a *App) StartGitHubLogin() (map[string]string, error) {
+	codeResp, err := auth.StartDeviceFlow()
+	if err != nil {
+		return nil, err
+	}
+	return map[string]string{
+		"userCode":   codeResp.UserCode,
+		"verifyUrl":  codeResp.VerificationURI,
+		"deviceCode": codeResp.DeviceCode,
+		"interval":   fmt.Sprintf("%d", codeResp.Interval),
+	}, nil
+}
+
+func (a *App) CompleteGitHubLogin(deviceCode string, interval int) (string, error) {
+	token, err := auth.PollForAccessToken(deviceCode, interval)
+	if err != nil {
+		return "", err
+	}
+	return token, nil
 }
