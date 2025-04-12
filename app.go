@@ -1,9 +1,10 @@
 package main
 
 import (
-	"GitCMS/internal/auth"
 	"context"
 	"fmt"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"net/http"
 )
 
 // App struct
@@ -20,30 +21,57 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+	go a.startCallbackServer()
 }
 
-// Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
-}
+func (a *App) startCallbackServer() {
+	handler := http.NewServeMux()
+	handler.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
+		code := r.URL.Query().Get("code")
+		state := r.URL.Query().Get("state")
+		if code == "" {
+			http.Error(w, "No code provided", http.StatusBadRequest)
+			return
+		}
+		runtime.LogDebug(a.ctx, "Received callback: code="+code+", state="+state)
+		runtime.EventsEmit(a.ctx, "oauth-callback", code, state)
 
-func (a *App) StartGitHubLogin() (map[string]string, error) {
-	codeResp, err := auth.StartDeviceFlow()
-	if err != nil {
-		return nil, err
+		w.Header().Set("Content-Type", "text/html")
+		fmt.Fprintf(w, `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login Success</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white rounded-2xl shadow-lg p-6 w-full max-w-md text-center">
+        <h2 class="text-xl font-semibold text-gray-800">Login successful! You can safely close this tab.</h2>
+    </div>
+</body>
+</html>
+`)
+	})
+
+	server := &http.Server{
+		Addr:    ":2501",
+		Handler: handler,
 	}
-	return map[string]string{
-		"userCode":   codeResp.UserCode,
-		"verifyUrl":  codeResp.VerificationURI,
-		"deviceCode": codeResp.DeviceCode,
-		"interval":   fmt.Sprintf("%d", codeResp.Interval),
-	}, nil
-}
 
-func (a *App) CompleteGitHubLogin(deviceCode string, interval int) (string, error) {
-	token, err := auth.PollForAccessToken(deviceCode, interval)
-	if err != nil {
-		return "", err
-	}
-	return token, nil
+	// Run server
+	go func() {
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			runtime.LogError(a.ctx, "Callback server error: "+err.Error())
+		}
+	}()
+
+	// Handle shutdown
+	go func() {
+		<-a.ctx.Done()
+		if err := server.Shutdown(context.Background()); err != nil {
+			runtime.LogError(a.ctx, "Callback server shutdown error: "+err.Error())
+		}
+	}()
 }

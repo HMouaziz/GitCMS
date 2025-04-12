@@ -1,11 +1,13 @@
 module GitCMS
 
-go 1.23
+go 1.23.0
 
 require (
 	github.com/go-git/go-git/v5 v5.13.2
+	github.com/google/go-github/v53 v53.2.0
 	github.com/joho/godotenv v1.5.1
 	github.com/wailsapp/wails/v2 v2.10.1
+	golang.org/x/oauth2 v0.29.0
 )
 
 require (
@@ -21,6 +23,7 @@ require (
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
+	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/jchv/go-winloader v0.0.0-20210711035445-715c2860da7e // indirect
