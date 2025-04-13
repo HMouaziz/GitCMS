@@ -44,9 +44,9 @@ export function MainDashboard() {
             <main>
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold">Your Projects</h2>
-                    {/*<Button onClick={() => navigate({ to: "/project" })}>*/}
-                    {/*    Add New Project*/}
-                    {/*</Button>*/}
+                    <Button onClick={() => navigate({ to: "/project" })}>
+                        Add New Project
+                    </Button>
                 </div>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {mockRepos.map((repo) => (
@@ -61,12 +61,12 @@ export function MainDashboard() {
                                     ))}
                                 </ul>
                             </CardContent>
-                            <CardFooter className="flex gap-2">
-                                <Button onClick={() => handleManageData(repo.name)}>
-                                    <FileText className="mr-2 h-4 w-4" /> Manage Data
-                                </Button>
+                            <CardFooter className="flex justify-between gap-2">
                                 <Button variant="outline" onClick={() => handleConfigure(repo.name)}>
                                     <Settings className="mr-2 h-4 w-4" /> Configure
+                                </Button>
+                                <Button onClick={() => handleManageData(repo.name)}>
+                                    <FileText className="mr-2 h-4 w-4" /> Manage Data
                                 </Button>
                             </CardFooter>
                         </Card>
