@@ -24,6 +24,21 @@ func (a *App) startup(ctx context.Context) {
 	go a.startCallbackServer()
 }
 
+func (a *App) Minimise() {
+	println("Minimise")
+	runtime.WindowMinimise(a.ctx)
+}
+
+func (a *App) Maximise() {
+	println("Maximise")
+	runtime.WindowMaximise(a.ctx)
+}
+
+func (a *App) Close() {
+	println("Close")
+	runtime.Quit(a.ctx)
+}
+
 func (a *App) startCallbackServer() {
 	handler := http.NewServeMux()
 	handler.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {

@@ -17,14 +17,16 @@ func main() {
 	auth := NewAuth()
 
 	err2 := wails.Run(&options.App{
-		Title:  "Git CMS",
-		Width:  1920,
-		Height: 1080,
+		Title:            "Git CMS",
+		Width:            1920,
+		Height:           1080,
+		WindowStartState: options.Maximised,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup:        app.startup,
+		Frameless:        true,
 		Bind: []interface{}{
 			app,
 			auth,
