@@ -20,7 +20,7 @@ export function MainDashboard() {
     }
 
     return (
-        <div className="bg-background text-foreground p-4 flex flex-col items-center">
+        <div className="h-[calc(100vh-80px)] bg-background text-foreground p-4 flex flex-col items-center">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold">Your Projects</h2>
                 </div>

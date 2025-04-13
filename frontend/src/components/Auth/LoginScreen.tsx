@@ -40,7 +40,7 @@ export function LoginScreen() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background text-foreground p-4">
+        <div className="h-[calc(100vh-80px)] flex-1 flex items-center justify-center bg-background text-foreground p-4">
             <Card className="w-full max-w-sm text-center">
                 <CardContent className="p-6 space-y-4">
                     <h2 className="text-xl font-bold">Welcome to GitCMS</h2>

@@ -5,28 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="efd1a3dd-5190-44e6-8f43-d07b4df8649d" name="Changes" comment="Simple title bar">
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/TitleBar/AppMenu.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/TitleBar/ProjectDropdownMenu.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/stores/config-store.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/stores/project-store.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/parsers/json-parser.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/parsers/parser.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internal/parsers/typescript-parser.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/auth.go" beforeDir="false" afterPath="$PROJECT_DIR$/auth.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json.md5" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json.md5" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/Pages/Dashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Pages/Dashboard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/ProjectDashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Project/ProjectDashboard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/TitleBar/TitleBar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/TitleBar/TitleBar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/ui/button.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/ui/button.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/routes/__root.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/routes/__root.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/style.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/wailsjs/go/main/Auth.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/wailsjs/go/main/Auth.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/wailsjs/go/main/Auth.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/wailsjs/go/main/Auth.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/auth/auth.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/auth/auth.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/TitleBar/AppMenu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/TitleBar/AppMenu.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/ui/Logo.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/ui/Logo.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/parsers/json-parser.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/parsers/json-parser.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

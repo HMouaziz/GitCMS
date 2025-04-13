@@ -1,9 +1,9 @@
 import {create} from 'zustand'
 import {persist} from 'zustand/middleware'
 
-type ThemeMode = 'light' | 'dark' | 'system'
+export type ThemeMode = 'light' | 'dark' | 'system'
 
-interface ThemeState {
+export interface ThemeState {
     theme: ThemeMode
     setTheme: (theme: ThemeMode) => void
 }
