@@ -7,4 +7,6 @@ export function GetToken(arg1:string):Promise<string>;
 
 export function HandleCallback(arg1:string,arg2:string):Promise<string>;
 
+export function SaveConfig(arg1:string,arg2:string):Promise<void>;
+
 export function StartOAuthLogin():Promise<string>;

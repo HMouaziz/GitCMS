@@ -13,9 +13,9 @@ function RootComponent() {
     return (
         <div className="flex flex-col h-screen w-screen overflow-hidden">
             <TitleBar/>
-            <div className="flex-1 overflow-auto">
+            <main className="flex-1 overflow-auto">
                 <Outlet/>
-            </div>
+            </main>
             <TanStackRouterDevtools/>
         </div>
     )

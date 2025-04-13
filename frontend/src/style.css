@@ -13,7 +13,7 @@ body {
 .title-bar {
     --wails-draggable:drag;
 }
-.title-bar-child {
+.title-bar * {
     --wails-draggable:no-drag;
 }
 

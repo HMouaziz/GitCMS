@@ -11,11 +11,13 @@ import (
 	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
 	"os"
+	"strings"
 )
 
 var oauthConfig *oauth2.Config
 var tokenStore = make(map[string]string)
 var currentState string
+var currentUsername string
 
 func init() {
 	if err := godotenv.Load(".env"); err != nil {
@@ -72,6 +74,7 @@ func HandleCallback(code, state string) (string, error) {
 	}
 
 	username := user.GetLogin()
+	currentUsername = username
 	tokenStore[username] = token.AccessToken
 	return username, nil
 }
@@ -83,4 +86,38 @@ func GetToken(username string) (string, error) {
 	}
 	hash := sha256.Sum256([]byte(token))
 	return hex.EncodeToString(hash[:]), nil
+}
+
+func SaveConfig(projectId, configData string) error {
+	token, err := GetToken(currentUsername)
+	if err != nil {
+		return err
+	}
+	client := github.NewClient(oauth2.NewClient(context.Background(), oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})))
+
+	// Split projectId into owner/repo
+	parts := strings.Split(projectId, "/")
+	if len(parts) != 2 {
+		return fmt.Errorf("invalid project ID: %s", projectId)
+	}
+	owner, repo := parts[0], parts[1]
+
+	// Check if config file exists
+	fileContent, _, _, err := client.Repositories.GetContents(context.Background(), owner, repo, "gitcms-config.json", nil)
+	sha := ""
+	if err == nil && fileContent != nil {
+		sha = *fileContent.SHA
+	}
+
+	// Commit updated config
+	opts := &github.RepositoryContentFileOptions{
+		Message: github.String("Update gitcms-config.json"),
+		Content: []byte(configData),
+		SHA:     github.String(sha),
+	}
+	_, _, err = client.Repositories.CreateFile(context.Background(), owner, repo, "gitcms-config.json", opts)
+	if err != nil {
+		return fmt.Errorf("failed to save config: %v", err)
+	}
+	return nil
 }

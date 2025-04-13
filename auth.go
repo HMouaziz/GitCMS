@@ -28,3 +28,7 @@ func (a *Auth) GetState() string {
 func (a *Auth) GetToken(username string) (string, error) {
 	return auth.GetToken(username)
 }
+
+func (a *Auth) SaveConfig(projectId, configData string) error {
+	return auth.SaveConfig(projectId, configData)
+}

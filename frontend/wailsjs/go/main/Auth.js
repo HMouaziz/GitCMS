@@ -14,6 +14,10 @@ export function HandleCallback(arg1, arg2) {
   return window['go']['main']['Auth']['HandleCallback'](arg1, arg2);
 }
 
+export function SaveConfig(arg1, arg2) {
+  return window['go']['main']['Auth']['SaveConfig'](arg1, arg2);
+}
+
 export function StartOAuthLogin() {
   return window['go']['main']['Auth']['StartOAuthLogin']();
 }

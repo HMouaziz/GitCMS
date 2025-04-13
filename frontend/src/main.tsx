@@ -7,6 +7,7 @@ import {QueryClientProvider} from "@tanstack/react-query";
 import {ReactQueryDevtools} from "@tanstack/react-query-devtools";
 import {useThemeStore} from "@/stores/theme-store";
 import "./style.css"
+import {DevtoolsDropdown} from "@/components/DevTools";
 
 const router = createRouter({routeTree})
 
@@ -26,6 +27,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <QueryClientProvider client={queryClient}>
             <RouterProvider router={router}/>
             <ReactQueryDevtools initialIsOpen={false}/>
+            <DevtoolsDropdown/>
         </QueryClientProvider>
     </React.StrictMode>
 )
