@@ -2,7 +2,6 @@ package auth
 
 import (
 	"GitCMS/internal/github"
-	"fmt"
 )
 
 type Binding struct {
@@ -10,9 +9,9 @@ type Binding struct {
 }
 
 func NewAuthBinding(client *github.Client) *Binding {
-	return &Binding{
-		auth: NewAuth(client),
-	}
+	b := &Binding{auth: NewAuth(client)}
+	_ = b.auth.RestoreLastSession()
+	return b
 }
 
 func (b *Binding) StartOAuthLogin() (string, error) {
@@ -23,22 +22,8 @@ func (b *Binding) HandleCallback(code, state string) (string, error) {
 	return b.auth.HandleCallback(code, state)
 }
 
-func (b *Binding) GetState() string {
-	return b.auth.GetState()
-}
-
-func (b *Binding) GetToken(username string) (string, error) {
-	return b.auth.GetToken(username)
-}
-
-func (b *Binding) GetRawToken(username string) (string, error) {
-	token, exists := b.auth.GetRawToken(username)
-	if !exists {
-		return "", fmt.Errorf("token not found for user %s", username)
-	}
-	return token, nil
-}
-
-func (b *Binding) GetUserDetails(username string) (UserDetails, error) {
-	return GetUserDetails(username)
-}
+func (b *Binding) RestoreLastSession() error            { return b.auth.RestoreLastSession() }
+func (b *Binding) Logout() error                        { return b.auth.Logout() }
+func (b *Binding) IsAuthed() bool                       { return b.auth.IsAuthed() }
+func (b *Binding) GetUser() (UserDetails, error)        { return b.auth.GetUser() }
+func (b *Binding) GetAvailableRepos() ([]string, error) { return b.auth.GetAvailableRepos() }

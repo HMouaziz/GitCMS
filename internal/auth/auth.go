@@ -14,18 +14,17 @@ import (
 )
 
 var oauthConfig *oauth2.Config
-var tokenStore = make(map[string]string)
 var currentState string
-var currentUsername string
 
 type Auth struct {
 	githubClient *github.Client
+	currentUser  *UserDetails
+	token        string
+	isAuthed     bool
 }
 
 func NewAuth(client *github.Client) *Auth {
-	if err := godotenv.Load(".env"); err != nil {
-		fmt.Println("Error loading .env file", err)
-	}
+	_ = godotenv.Load(".env")
 	oauthConfig = &oauth2.Config{
 		ClientID:     os.Getenv("GITHUB_CLIENT_ID"),
 		ClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
@@ -36,19 +35,15 @@ func NewAuth(client *github.Client) *Auth {
 			TokenURL: "https://github.com/login/oauth/access_token",
 		},
 	}
-	return &Auth{
-		githubClient: client,
-	}
+	return &Auth{githubClient: client}
 }
 
-func (a *Auth) GetState() string {
-	return currentState
-}
+/* ---------- OAuth flow ---------- */
 
 func GenerateRandomState() (string, error) {
 	b := make([]byte, 16)
 	if _, err := rand.Read(b); err != nil {
-		return "", fmt.Errorf("failed to generate random state: %v", err)
+		return "", err
 	}
 	return base64.URLEncoding.EncodeToString(b), nil
 }
@@ -59,7 +54,7 @@ func (a *Auth) StartOAuthLogin() (string, error) {
 		return "", err
 	}
 	currentState = state
-	return oauthConfig.AuthCodeURL(state, oauth2.AccessTypeOffline, oauth2.SetAuthURLParam("prompt", "login")), nil
+	return oauthConfig.AuthCodeURL(state, oauth2.AccessTypeOffline), nil
 }
 
 func (a *Auth) HandleCallback(code, state string) (string, error) {
@@ -68,36 +63,110 @@ func (a *Auth) HandleCallback(code, state string) (string, error) {
 	}
 
 	ctx := context.Background()
-	token, err := oauthConfig.Exchange(ctx, code)
+	tok, err := oauthConfig.Exchange(ctx, code)
 	if err != nil {
-		return "", fmt.Errorf("failed to exchange token: %w", err)
+		return "", err
 	}
 
-	a.githubClient.Authenticate(token.AccessToken) // <-- 💥 authenticate the shared client
+	/* authenticate shared client */
+	a.githubClient.Authenticate(tok.AccessToken)
 
-	client := a.githubClient.GetRawClient()
-	user, _, err := client.Users.Get(ctx, "")
+	/* fetch authenticated user */
+	ghUser, _, err := a.githubClient.GetRawClient().Users.Get(ctx, "")
 	if err != nil {
-		return "", fmt.Errorf("failed to get user info: %w", err)
+		return "", err
 	}
 
-	username := user.GetLogin()
-	currentUsername = username
-	tokenStore[username] = token.AccessToken
+	username := ghUser.GetLogin()
+	details, err := GetUserDetailsFromClient(ctx, a.githubClient.GetRawClient())
+	if err != nil {
+		return "", err
+	}
+
+	/* update in-memory state */
+	a.currentUser = &details
+	a.token = tok.AccessToken
+	a.isAuthed = true
+
+	/* persist session */
+	if err := SaveSession(&SessionData{
+		Username: username,
+		Token:    tok.AccessToken,
+		User:     details,
+	}); err != nil {
+		return "", fmt.Errorf("persist session: %w", err)
+	}
 
 	return username, nil
 }
 
-func (a *Auth) GetToken(username string) (string, error) {
-	token, exists := tokenStore[username]
-	if !exists {
-		return "", fmt.Errorf("token not found for user %s", username)
+/* ---------- Session restore / logout ---------- */
+
+func (a *Auth) RestoreLastSession() error {
+	sess, err := LoadSession()
+	if err != nil { // no file
+		a.isAuthed = false
+		return err
 	}
-	hash := sha256.Sum256([]byte(token))
+
+	// Authenticate client with stored token
+	a.githubClient.Authenticate(sess.Token)
+
+	// === token validity probe ===
+	_, _, err = a.githubClient.GetRawClient().Users.Get(context.Background(), "")
+	if err != nil {
+		_ = ClearSession()
+		a.isAuthed = false
+		return fmt.Errorf("invalid token: %w", err)
+	}
+
+	// accepted -> load state
+	a.currentUser = &sess.User
+	a.token = sess.Token
+	a.isAuthed = true
+	return nil
+}
+
+func (a *Auth) Logout() error {
+	a.currentUser = nil
+	a.token = ""
+	a.isAuthed = false
+	return ClearSession()
+}
+
+/* ---------- Convenience getters ---------- */
+
+func (a *Auth) IsAuthed() bool { return a.isAuthed }
+
+func (a *Auth) GetUser() (UserDetails, error) {
+	if !a.isAuthed || a.currentUser == nil {
+		return UserDetails{}, fmt.Errorf("not authenticated")
+	}
+	return *a.currentUser, nil
+}
+
+func (a *Auth) GetTokenHash() (string, error) {
+	if !a.isAuthed {
+		return "", fmt.Errorf("not authenticated")
+	}
+	hash := sha256.Sum256([]byte(a.token))
 	return hex.EncodeToString(hash[:]), nil
 }
 
-func (a *Auth) GetRawToken(username string) (string, bool) {
-	token, exists := tokenStore[username]
-	return token, exists
+/* ---------- GitHub helpers ---------- */
+
+func (a *Auth) GetAvailableRepos() ([]string, error) {
+	if !a.isAuthed {
+		return nil, fmt.Errorf("not authenticated")
+	}
+	repos, _, err := a.githubClient.GetRawClient().
+		Repositories.List(context.Background(), "", nil)
+	if err != nil {
+		return nil, err
+	}
+	var out []string
+	for _, r := range repos {
+		out = append(out, fmt.Sprintf("%s/%s", r.GetOwner().GetLogin(), r.GetName()))
+	}
+	return out, nil
 }

@@ -1,30 +1,37 @@
-import {create} from "zustand"
-import {persist} from "zustand/middleware"
+import { create } from 'zustand'
 import {auth} from "../../wailsjs/go/models";
 import UserDetails = auth.UserDetails;
+import {GetUser, HandleCallback, IsAuthed, Logout} from "../../wailsjs/go/auth/Binding";
 
-
-type AuthState = {
-    user: UserDetails| null
-    username: string | null
-    token: string | null
-    setAuth: (username: string, token: string) => void
-    setUser: (user: UserDetails) => void
-    logout: () => void
+interface AuthState {
+    isAuthed: boolean
+    user: UserDetails | null
+    initialise: () => Promise<void>
+    loginWithCode: (code: string, state: string) => Promise<void>
+    logout: () => Promise<void>
 }
 
-export const useAuth = create<AuthState>()(
-    persist(
-        (set) => ({
-            user: null,
-            username: null,
-            token: null,
-            setAuth: (username, token) => set({username, token}),
-            setUser: (user) => set({user}),
-            logout: () => set({username: null, token: null}),
-        }),
-        {
-            name: "gitcms-auth",
+export const useAuth = create<AuthState>()((set) => ({
+    isAuthed: false,
+    user: null,
+
+    initialise: async () => {
+        if (await IsAuthed()) {
+            const user = await GetUser()
+            set({ isAuthed: true, user })
         }
-    )
-)
+    },
+
+    /** Called after OAuth callback */
+    loginWithCode: async (code, state) => {
+        const username = await HandleCallback(code, state) // triggers backend save
+        const user = await GetUser()
+        set({ isAuthed: true, user })
+        console.log('Logged-in as', username)
+    },
+
+    logout: async () => {
+        await Logout()
+        set({ isAuthed: false, user: null })
+    },
+}))

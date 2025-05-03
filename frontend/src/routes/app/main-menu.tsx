@@ -4,7 +4,7 @@ import {MainMenu} from "@/components/Pages/MainMenu";
 
 export const Route = createFileRoute('/app/main-menu')({
     beforeLoad: () => {
-        const token = useAuth.getState().token
+        const token = useAuth.getState().isAuthed
         if (!token) throw redirect({to: '/app/login'})
     },
     component: MainMenu,

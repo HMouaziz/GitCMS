@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/go-github/v53/github"
-	"golang.org/x/oauth2"
 	"strings"
 )
 
@@ -17,22 +16,13 @@ type UserDetails struct {
 	AvatarURL string `json:"avatarUrl"`
 }
 
-// GetUserDetails retrieves available GitHub user details (name, last name, email, avatar URL).
-// Missing fields are returned as empty strings; errors are only returned for network or auth issues.
-func GetUserDetails(username string) (UserDetails, error) {
-	token, exists := tokenStore[username]
-	if !exists {
-		return UserDetails{}, fmt.Errorf("token not found for user %s", username)
-	}
-
-	ctx := context.Background()
-	client := github.NewClient(oauth2.NewClient(ctx, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})))
-	user, _, err := client.Users.Get(ctx, username)
+// GetUserDetailsFromClient fetches details for *the already-authenticated* user.
+func GetUserDetailsFromClient(ctx context.Context, gh *github.Client) (UserDetails, error) {
+	user, _, err := gh.Users.Get(ctx, "") // "" → current user
 	if err != nil {
-		return UserDetails{}, fmt.Errorf("failed to get user details: %v", err)
+		return UserDetails{}, fmt.Errorf("failed to get user: %w", err)
 	}
 
-	// Extract name and attempt to derive last name
 	name := user.GetName()
 	var lastName string
 	if name != "" {
@@ -43,33 +33,25 @@ func GetUserDetails(username string) (UserDetails, error) {
 		}
 	}
 
-	// Get avatar URL
-	avatarURL := user.GetAvatarURL()
+	avatar := user.GetAvatarURL()
 
-	// Fetch email using the Emails API
+	// Attempt to get primary/verified email
 	var email string
-	emails, _, err := client.Users.ListEmails(ctx, nil)
-	if err != nil {
-		// Log the error but continue with empty email (per requirement)
-		fmt.Printf("Failed to fetch emails: %v\n", err)
-	} else {
-		// Find the primary or first verified email
-		for _, e := range emails {
-			if e.GetVerified() && e.GetPrimary() {
-				email = e.GetEmail()
+	emails, _, _ := gh.Users.ListEmails(ctx, nil)
+	for _, e := range emails {
+		if e.GetVerified() && (e.GetPrimary() || email == "") {
+			email = e.GetEmail()
+			if e.GetPrimary() {
 				break
-			}
-			if e.GetVerified() && email == "" {
-				email = e.GetEmail() // Fallback to any verified email
 			}
 		}
 	}
 
 	return UserDetails{
-		Username:  username,
+		Username:  user.GetLogin(),
 		Name:      name,
 		LastName:  lastName,
 		Email:     email,
-		AvatarURL: avatarURL,
+		AvatarURL: avatar,
 	}, nil
 }

@@ -1,18 +1,25 @@
-import {create} from 'zustand'
-import {persist} from 'zustand/middleware'
+import { create } from "zustand"
+import { persist } from "zustand/middleware"
+import { useProjectConfigStore } from "@/stores/config-store"
+import {useAuth} from "@/stores/auth-store";
+import {LoadConfig} from "../../wailsjs/go/cms/CMS";
 import {model} from "../../wailsjs/go/models";
-import Project = model.Project;
 
-
+type Project = model.Project
 
 interface ProjectStore {
     projects: Record<string, Project>
     selectedProjectId: string | null
-    addProject: (project: model.Project) => void
+    addProject: (project: Project) => void
     removeProject: (id: string) => void
-    setSelectedProject: (id: string | null) => void
+    setSelectedProject: (id: string) => Promise<void>
     getSelectedProject: () => Project | null
     reset: () => void
+}
+
+function getUserStorageKey(): string {
+    const username = useAuth.getState().user?.username
+    return username ? `gitcms-projects-${username}` : "gitcms-projects"
 }
 
 export const useProjectStore = create<ProjectStore>()(
@@ -20,41 +27,38 @@ export const useProjectStore = create<ProjectStore>()(
         (set, get) => ({
             projects: {},
             selectedProjectId: null,
-
             addProject: (project) =>
                 set((state) => ({
-                    projects: {
-                        ...state.projects,
-                        [project.id]: project,
-                    },
+                    projects: { ...state.projects, [project.id]: project },
                 })),
-
             removeProject: (id) =>
                 set((state) => {
-                    const {[id]: _, ...rest} = state.projects
-                    const isSelected = state.selectedProjectId === id
+                    const { [id]: _, ...rest } = state.projects
                     return {
                         projects: rest,
-                        selectedProjectId: isSelected ? null : state.selectedProjectId,
+                        selectedProjectId: state.selectedProjectId === id ? null : state.selectedProjectId,
                     }
                 }),
+            setSelectedProject: async (id) => {
+                const exists = id ? get().projects[id] : false
+                if (!exists) throw new Error("Project not found")
+                set({ selectedProjectId: id })
 
-            setSelectedProject: (id) => {
-                const exists = id ? get().projects[id] : true
-                if (exists) {
-                    set({selectedProjectId: id})
-                }
+                const config = await LoadConfig(id)
+                useProjectConfigStore.getState().setConfig(config.content)
             },
-
             getSelectedProject: () => {
-                const {projects, selectedProjectId} = get()
+                const { selectedProjectId, projects } = get()
                 return selectedProjectId ? projects[selectedProjectId] ?? null : null
             },
-
-            reset: () => localStorage.removeItem('project-store'),
+            reset: () => {
+                const key = getUserStorageKey()
+                localStorage.removeItem(key)
+                set({ projects: {}, selectedProjectId: null })
+            },
         }),
         {
-            name: 'project-store',
+            name: getUserStorageKey(),
         }
     )
 )

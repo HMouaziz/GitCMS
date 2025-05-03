@@ -4,8 +4,8 @@ import {useAuth} from "@/stores/auth-store";
 
 export const Route = createFileRoute('/app/login')({
     beforeLoad: () => {
-        const token = useAuth.getState().token
-        if (token) throw redirect({to: '/app/main-menu'})
+        const isAuthed = useAuth.getState().isAuthed
+        if (isAuthed) throw redirect({to: '/app/main-menu'})
     },
     component: RouteComponent,
 })

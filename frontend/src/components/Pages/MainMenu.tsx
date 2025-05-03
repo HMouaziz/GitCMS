@@ -3,26 +3,37 @@ import {useProjectStore} from "@/stores/project-store";
 import {LogoutButton} from "@/components/Auth/LogoutButton";
 import {useNavigate} from "@tanstack/react-router";
 
+
 export const MainMenu = () => {
     const projects = useProjectStore(state => state.projects)
-    const navigate = useNavigate();
+    const navigate = useNavigate()
 
     function handleOpen() {
-        navigate({to: '/projects'})
+        navigate({ to: '/projects' })
+    }
+
+    function handleNew() {
+        navigate({ to: '/app/new-project' })
     }
 
     return (
-        <div className="h-[calc(100vh-80px)] bg-background text-foreground p-4 flex flex-col items-center">
-            <h1>Git CMS</h1>
-            {Object.keys(projects).length === 0 ?
-                <Button>New Project</Button> :
-                <>
-                    <Button onClick={handleOpen}>Open Project</Button>
-                    <Button>New Project</Button>
-                </>
-            }
-            <Button>Settings</Button>
-            <LogoutButton/>
+        <div className="flex h-full flex-col items-center justify-center gap-4 p-4 text-foreground">
+            <h1 className="text-2xl font-bold">Git CMS</h1>
+
+            <div className='flex flex-col gap-4'>
+                {Object.keys(projects).length === 0 ? (
+                    <Button onClick={handleNew}>New Project</Button>
+                ) : (
+                    <>
+                        <Button onClick={handleOpen}>Open Project</Button>
+                        <Button onClick={handleNew}>New Project</Button>
+                    </>
+                )}
+
+                <Button>Settings</Button>
+                <LogoutButton />
+            </div>
+
         </div>
-    );
-};
+    )
+}
