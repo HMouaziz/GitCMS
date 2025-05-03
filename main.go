@@ -1,6 +1,9 @@
 package main
 
 import (
+	"GitCMS/internal/auth"
+	"GitCMS/internal/cms"
+	"GitCMS/internal/github"
 	"embed"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -12,10 +15,13 @@ import (
 var assets embed.FS
 
 func main() {
-
 	app := NewApp()
 
-	auth := NewAuth()
+	githubClient := github.NewClient()
+
+	authBindings := auth.NewAuthBinding(githubClient)
+
+	cmsBindings := cms.NewCMS(githubClient)
 
 	err2 := wails.Run(&options.App{
 		Title:            "Git CMS",
@@ -30,7 +36,8 @@ func main() {
 		Frameless:        true,
 		Bind: []interface{}{
 			app,
-			auth,
+			authBindings,
+			cmsBindings,
 		},
 		Windows: &windows.Options{
 			DisableFramelessWindowDecorations: true,

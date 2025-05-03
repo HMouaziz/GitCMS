@@ -8,7 +8,6 @@ import {
 } from "../ui/dropdown-menu";
 import {Logo} from "@/components/ui/Logo";
 import {ThemeMode, useThemeStore} from "@/stores/theme-store";
-import {useShallow} from "zustand/react/shallow";
 import {useAuth} from "@/stores/auth-store";
 import {useNavigate} from "@tanstack/react-router";
 
@@ -25,7 +24,7 @@ export const AppMenu = () => {
 
     function handleLogout() {
         logout()
-        navigate({ to: '/login' })    }
+        navigate({ to: '/app/login' })    }
 
     return (
         <DropdownMenu >

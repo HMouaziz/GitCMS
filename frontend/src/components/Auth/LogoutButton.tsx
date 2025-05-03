@@ -10,7 +10,7 @@ export function LogoutButton() {
         <Button
             onClick={() => {
                 logout()
-                navigate({ to: '/login' })
+                navigate({ to: '/app/login' })
             }}
         >
             Log out

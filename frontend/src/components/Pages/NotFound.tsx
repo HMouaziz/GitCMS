@@ -18,7 +18,7 @@ export const NotFound = () => {
                 <CardContent className="text-center space-y-4">
                     <p className="text-gray-600">The page you&apos;re looking for can&apos;t be found.</p>
                     <Button asChild>
-                        <Link to={"/dashboard"}>Return Home</Link>
+                        <Link to={"/app/main-menu"}>Return Home</Link>
                     </Button>
                 </CardContent>
             </Card>

@@ -3,15 +3,15 @@ import { useAuth } from "@/stores/auth-store"
 import { useNavigate } from "@tanstack/react-router"
 import { useState } from "react"
 import {BrowserOpenURL, EventsOn} from "../../../wailsjs/runtime"
-import { GetToken, HandleCallback, StartOAuthLogin } from "../../../wailsjs/go/main/Auth"
 import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
+import {GetToken, GetUserDetails, HandleCallback, StartOAuthLogin} from "../../../wailsjs/go/auth/Binding";
 
 export function LoginScreen() {
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
-    const { setAuth } = useAuth()
+    const { setAuth, setUser } = useAuth()
 
     const startLogin = async () => {
         setLoading(true)
@@ -25,8 +25,10 @@ export function LoginScreen() {
                     const username = await HandleCallback(code, state)
                     const token = await GetToken(username)
                     setAuth(username, token)
+                    const user = await GetUserDetails(username)
+                    setUser(user)
                     setLoading(false)
-                    await navigate({ to: "/dashboard" })
+                    await navigate({ to: "/app/main-menu" })
                 } catch (err) {
                     setError("Login failed, please try again")
                     setLoading(false)

@@ -9,17 +9,21 @@ import {
 import {useProjectStore} from "@/stores/project-store";
 import {ScrollArea} from "@/components/ui/scroll-area";
 import {Plus} from "lucide-react";
+import {useNavigate} from "@tanstack/react-router";
 
 export const ProjectDropdownMenu = () => {
     const selectedProject = useProjectStore((state) => state.getSelectedProject());
     const setSelectedProject = useProjectStore((state) => state.setSelectedProject);
     const projectRec = useProjectStore((state) => state.projects)
     const projects = Object.values(projectRec);
+    const navigate = useNavigate();
 
     function handleSwitch(id: string) {
-        setSelectedProject(id);
+        navigate({
+            to: '/projects/$projectId',
+            params: { projectId: id },
+        })
     }
-
 
     return (
         <DropdownMenu>

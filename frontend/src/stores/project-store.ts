@@ -1,49 +1,24 @@
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import {create} from 'zustand'
+import {persist} from 'zustand/middleware'
+import {model} from "../../wailsjs/go/models";
+import Project = model.Project;
 
-export interface Project {
-    id: string
-    name: string
-    owner: string
-}
+
 
 interface ProjectStore {
     projects: Record<string, Project>
     selectedProjectId: string | null
-    addProject: (project: Project) => void
+    addProject: (project: model.Project) => void
     removeProject: (id: string) => void
     setSelectedProject: (id: string | null) => void
     getSelectedProject: () => Project | null
     reset: () => void
 }
 
-const mockProjects: Record<string, Project> = {
-    "lydie/ballet-school-site": {
-        id: "lydie/ballet-school-site",
-        name: "ballet-school-site",
-        owner: "lydie"
-    },
-    "lydie/dance-events-2025": {
-        id: "lydie/dance-events-2025",
-        name: "dance-events-2025",
-        owner: "lydie"
-    },
-    "lydie/dance-events-2024": {
-        id: "lydie/dance-events-2024",
-        name: "dance-events-2024",
-        owner: "lydie"
-    },
-    "lydie/dance-events-2023": {
-        id: "lydie/dance-events-2023",
-        name: "dance-events-2023",
-        owner: "lydie"
-    }
-}
-
 export const useProjectStore = create<ProjectStore>()(
     persist(
         (set, get) => ({
-            projects: mockProjects,
+            projects: {},
             selectedProjectId: null,
 
             addProject: (project) =>
@@ -56,7 +31,7 @@ export const useProjectStore = create<ProjectStore>()(
 
             removeProject: (id) =>
                 set((state) => {
-                    const { [id]: _, ...rest } = state.projects
+                    const {[id]: _, ...rest} = state.projects
                     const isSelected = state.selectedProjectId === id
                     return {
                         projects: rest,
@@ -67,12 +42,12 @@ export const useProjectStore = create<ProjectStore>()(
             setSelectedProject: (id) => {
                 const exists = id ? get().projects[id] : true
                 if (exists) {
-                    set({ selectedProjectId: id })
+                    set({selectedProjectId: id})
                 }
             },
 
             getSelectedProject: () => {
-                const { projects, selectedProjectId } = get()
+                const {projects, selectedProjectId} = get()
                 return selectedProjectId ? projects[selectedProjectId] ?? null : null
             },
 
